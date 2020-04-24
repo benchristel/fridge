@@ -16,9 +16,12 @@ describe "Fridge" do
   end
 
   it "responds to a request for the latest revision" do
-    expect(JSON(Net::HTTP.get(URI("http://localhost:4567/revisions/latest"))))
-      .to eq({
-          "id" => 0
-        })
+    uri = URI "http://localhost:4567/revisions/latest"
+
+    expected = {
+      "id" => 0
+    }
+
+    expect(JSON(Net::HTTP.get(uri))).to eq expected
   end
 end
