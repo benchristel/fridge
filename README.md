@@ -4,6 +4,35 @@ Fridge is an immutable key-value store. It usually stores values as files on
 disk, but the storage layer can be swapped out for e.g. a relational database
 or an in-memory store.
 
+## Development
+
+You'll need Ruby 2.7.1 installed via rbenv.
+
+One-time setup (the standard Ruby stuff):
+
+```
+gem install bundler
+bundle
+```
+
+To run the tests:
+
+```
+make
+```
+
+To run the development server:
+
+```
+make run
+```
+
+To run just the unit tests:
+
+```
+make unit
+```
+
 ## Revisions
 
 A Fridge database is versioned. Any change to a value creates a new,
