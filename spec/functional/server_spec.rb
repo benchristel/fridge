@@ -22,6 +22,9 @@ describe "Fridge" do
       "id" => 0
     }
 
-    expect(JSON(Net::HTTP.get(uri))).to eq expected
+    response = Net::HTTP.get_response(uri)
+
+    expect(JSON(response.body)).to eq expected
+    expect(response["Content-Type"]).to eq "application/json"
   end
 end
