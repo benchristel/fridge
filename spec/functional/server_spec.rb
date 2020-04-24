@@ -15,31 +15,34 @@ describe "Fridge" do
     Process.wait @server_pid
   end
 
+  let :server_port do
+    4567
+  end
+
+  let :http_client do
+    Net::HTTP.new("localhost", server_port)
+  end
+
+  def get(path)
+    Net::HTTP::Get.new path
+  end
+
+  def put(path)
+    Net::HTTP::Put.new path
+  end
+
   it "responds to a request for the latest revision" do
-    uri = URI "http://localhost:4567/revisions/latest"
+    response = http_client.request get "/revisions/latest"
 
-    expected = {
-      "id" => 0
-    }
-
-    response = Net::HTTP.get_response(uri)
-
-    expect(JSON(response.body)).to eq expected
+    expect(JSON(response.body)).to eq "id" => 0
     expect(response["Content-Type"]).to eq "application/json"
   end
 
   it "increments the latest revision number when you set a key" do
-    put_request = Net::HTTP::Put.new "/values/my-test-key"
-    Net::HTTP.new("localhost", 4567).request put_request
+    http_client.request put "/values/my-test-key"
 
-    uri = URI "http://localhost:4567/revisions/latest"
+    response = http_client.request get "/revisions/latest"
 
-    expected = {
-      "id" => 1
-    }
-
-    response = Net::HTTP.get_response(uri)
-
-    expect(JSON(response.body)).to eq expected
+    expect(JSON(response.body)).to eq "id" => 1
   end
 end
