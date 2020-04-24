@@ -27,4 +27,19 @@ describe "Fridge" do
     expect(JSON(response.body)).to eq expected
     expect(response["Content-Type"]).to eq "application/json"
   end
+
+  it "increments the latest revision number when you set a key" do
+    put_request = Net::HTTP::Put.new "/values/my-test-key"
+    Net::HTTP.new("localhost", 4567).request put_request
+
+    uri = URI "http://localhost:4567/revisions/latest"
+
+    expected = {
+      "id" => 1
+    }
+
+    response = Net::HTTP.get_response(uri)
+
+    expect(JSON(response.body)).to eq expected
+  end
 end
