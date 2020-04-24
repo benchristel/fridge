@@ -3,14 +3,14 @@ require "uri"
 require "json"
 
 describe "Fridge" do
-  before :all do
+  before :each do
     @server_pid = fork do
       exec "make", "run"
     end
     sleep 2
   end
 
-  after :all do
+  after :each do
     Process.kill "TERM", @server_pid
     Process.wait @server_pid
   end
