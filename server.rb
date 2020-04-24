@@ -3,7 +3,7 @@ require "json"
 
 revision = 0
 
-get "*" do
+get "/revisions/latest" do
   return 200, {"Content-Type" => "application/json"}, JSON(
     id: revision
   )

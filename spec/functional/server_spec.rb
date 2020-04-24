@@ -31,6 +31,11 @@ describe "Fridge" do
     Net::HTTP::Put.new path
   end
 
+  it "responds 404 to a request for a bogus URL" do
+    response = http_client.request get "/blep"
+    expect(response.code).to eq "404"
+  end
+
   it "responds to a request for the latest revision" do
     response = http_client.request get "/revisions/latest"
 
