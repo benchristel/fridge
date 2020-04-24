@@ -4,7 +4,6 @@ require "json"
 revision = 0
 
 get "*" do
-  puts request.inspect
   return 200, {"Content-Type" => "application/json"}, JSON(
     id: revision
   )
