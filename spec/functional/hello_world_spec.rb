@@ -1,5 +1,6 @@
 require "net/http"
 require "uri"
+require "json"
 
 describe "Fridge" do
   before :all do
@@ -14,8 +15,10 @@ describe "Fridge" do
     Process.wait @server_pid
   end
 
-  it "responds to a request" do
-    expect(Net::HTTP.get(URI("http://localhost:4567")))
-      .to eq "Hello, world!"
+  it "responds to a request for the latest revision" do
+    expect(JSON(Net::HTTP.get(URI("http://localhost:4567/revisions/latest"))))
+      .to eq({
+          "id" => 0
+        })
   end
 end
