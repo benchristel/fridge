@@ -1,15 +1,21 @@
 require "sinatra"
 require "json"
 
-revision = 0
+$LOAD_PATH.unshift File.join __dir__, "lib"
 
-get "/revisions/latest" do
-  return 200, {"Content-Type" => "application/json"}, JSON(
-    id: revision
-  )
-end
+require "response_for"
 
-put "*" do
-  revision += 1
-  return 204, ""
+ALL_PATHS = "*"
+
+[:get, :put].each do |method|
+  send method, ALL_PATHS do
+    resp = response_for(
+      method: request.request_method,
+      path:   request.path,
+      params: request.params,
+      body:   request.body,
+    )
+
+    [resp.status, resp.headers, resp.body]
+  end
 end
