@@ -2,44 +2,27 @@ require "json"
 
 Response = Struct.new(:status, :headers, :body)
 
-class RestResource
-  def self.build(path)
-    match = %r{^/values/(.+)}.match(path)
-    if match
-      return ValueRestResource.new(match[1])
-    end
-
-    match = %r{/revisions/latest}.match(path)
-    if match
-      return LatestRevisionRestResource.new
-    end
-  end
-end
-
-ValueRestResource = Struct.new(:key)
-LatestRevisionRestResource = Class.new
-
 def response_for(storage, method, path, params: {}, body: "")
-  resource = RestResource.build(path)
+  parsed_path = path.split("/").drop(1)
 
-  case [method, resource]
+  case [method, parsed_path]
 
-  in "GET", LatestRevisionRestResource
+  in "GET", ["revisions", "latest"]
     Response.new(
       200,
       {"Content-Type" => "application/json"},
       JSON(id: storage.revision)
     )
 
-  in "GET", ValueRestResource => res
+  in "GET", ["values", key]
     Response.new(
       200,
       {"Content-Type" => "text/plain"},
-      storage.get(res.key)
+      storage.get(key)
     )
 
-  in "PUT", ValueRestResource => res
-    storage.update(res.key, body)
+  in "PUT", ["values", key]
+    storage.update(key, body)
     Response.new(204)
 
   else
