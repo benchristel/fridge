@@ -56,7 +56,9 @@ Response:
 
 ```json
 {
-  "revision": 1,
+  "revision": {
+    "id": 1
+  },
   "timestamp": "2020-01-01 17:45.678Z"
 }
 ```
