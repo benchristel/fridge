@@ -30,11 +30,11 @@ def response_for(storage, method, path, params: {}, body: "")
     end
 
   in "PUT", ["values", key]
-    storage.update(key, body)
+    revision = storage.update(key, body)
     Response.new(
       200,
       {"Content-Type" => "application/json"},
-      JSON(revision: {id: storage.revision})
+      JSON(revision: {id: revision})
     )
 
   else

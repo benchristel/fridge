@@ -5,9 +5,8 @@ class InMemoryStorage
   end
 
   def update(key, value)
-    @revision += 1
-    @revisions[@revision] ||= @revisions[@revision - 1].clone
-    @revisions[@revision][key] = value
+    @revisions << @revisions.last.merge(key => value)
+    @revision = @revisions.length - 1
   end
 
   def revision
