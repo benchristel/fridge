@@ -1,27 +1,7 @@
 require "json"
+require "revision"
 
 Response = Struct.new(:status, :headers, :body)
-
-class Revision
-  def self.parse(raw_revision, latest_revision)
-    case raw_revision
-    in nil
-      Valid.new latest_revision
-    in /^[0-9]+$/
-      if raw_revision.to_i > latest_revision
-        Nonexistent.new
-      else
-        Valid.new raw_revision.to_i
-      end
-    else
-      Malformed.new
-    end
-  end
-
-  Valid = Struct.new(:to_i)
-  Nonexistent = Class.new
-  Malformed = Class.new
-end
 
 def response_for(storage, method, path, params: {}, body: "")
   parsed_path = path.split("/").drop(1)
