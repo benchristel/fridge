@@ -15,15 +15,26 @@ def response_for(storage, method, path, params: {}, body: "")
     )
 
   in "GET", ["values", key]
+    if params["revision"] && params["revision"] !~ /^[0-9]+$/
+      return Response.new(400)
+    end
+    revision = params["revision"] || storage.revision
+    if revision.to_i > storage.revision
+      return Response.new(404)
+    end
     Response.new(
       200,
       {"Content-Type" => "text/plain"},
-      storage.get(key)
+      storage.get(key, revision)
     )
 
   in "PUT", ["values", key]
     storage.update(key, body)
-    Response.new(204)
+    Response.new(
+      200,
+      {"Content-Type" => "application/json"},
+      JSON(revision: {id: storage.revision})
+    )
 
   else
     Response.new(404)

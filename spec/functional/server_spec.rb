@@ -27,8 +27,8 @@ describe "Fridge" do
     Net::HTTP::Get.new path
   end
 
-  def put(path)
-    Net::HTTP::Put.new path
+  def put(path, body: "")
+    Net::HTTP::Put.new(path).tap { |r| r.body = body }
   end
 
   it "responds 404 to a request for a bogus URL" do
@@ -49,5 +49,15 @@ describe "Fridge" do
     response = http_client.request get "/revisions/latest"
 
     expect(JSON(response.body)).to eq "id" => 1
+  end
+
+  it "parses query parameters" do
+    http_client.request put "/values/my-test-key", body: "foo"
+    http_client.request put "/values/my-test-key", body: "bar"
+
+    response =
+      http_client.request get "/values/my-test-key?revision=1"
+
+    expect(response.body).to eq "foo"
   end
 end
