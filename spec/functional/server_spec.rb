@@ -2,8 +2,16 @@ require "net/http"
 require "uri"
 require "json"
 
+STORAGE_DIR = "/tmp/fridge-tests"
+
 describe "Fridge" do
   before :each do
+    FileUtils.rm_rf(STORAGE_DIR)
+
+    # environment variables for the server child process
+    ENV["FRIDGE_STORAGE_DIR"]  = STORAGE_DIR
+    ENV["FRIDGE_STORAGE_TYPE"] = "file"
+
     @server_pid = fork do
       exec "make", "run"
     end

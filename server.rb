@@ -4,10 +4,10 @@ require "json"
 $LOAD_PATH.unshift File.join __dir__, "lib"
 
 require "response_for"
-require "in_memory_storage"
+require "storage_factory"
 
 ALL_PATHS = "*"
-STORAGE = InMemoryStorage.new
+STORAGE = StorageFactory.build ENV
 
 [:get, :put].each do |method|
   send method, ALL_PATHS do
