@@ -2,6 +2,27 @@ require "json"
 
 Response = Struct.new(:status, :headers, :body)
 
+class Revision
+  def self.parse(raw_revision, latest_revision)
+    case raw_revision
+    in nil
+      Valid.new latest_revision
+    in /^[0-9]+$/
+      if raw_revision.to_i > latest_revision
+        Nonexistent.new
+      else
+        Valid.new raw_revision.to_i
+      end
+    else
+      Malformed.new
+    end
+  end
+
+  Valid = Struct.new(:to_i)
+  Nonexistent = Class.new
+  Malformed = Class.new
+end
+
 def response_for(storage, method, path, params: {}, body: "")
   parsed_path = path.split("/").drop(1)
 
@@ -15,18 +36,18 @@ def response_for(storage, method, path, params: {}, body: "")
     )
 
   in "GET", ["values", key]
-    if params["revision"] && params["revision"] !~ /^[0-9]+$/
-      return Response.new(400)
+    case Revision.parse params["revision"], storage.revision
+    in Revision::Malformed
+      Response.new(400)
+    in Revision::Nonexistent
+      Response.new(404)
+    in Revision::Valid => revision
+      Response.new(
+        200,
+        {"Content-Type" => "text/plain"},
+        storage.get(key, revision)
+      )
     end
-    revision = params["revision"] || storage.revision
-    if revision.to_i > storage.revision
-      return Response.new(404)
-    end
-    Response.new(
-      200,
-      {"Content-Type" => "text/plain"},
-      storage.get(key, revision)
-    )
 
   in "PUT", ["values", key]
     storage.update(key, body)
