@@ -1,5 +1,6 @@
 require "fileutils"
 require "digest"
+require "json"
 
 class FileStorage < Struct.new(:dir)
   def initialize(dir)
@@ -19,6 +20,7 @@ class FileStorage < Struct.new(:dir)
     new_revision = revision + 1
     File.write revision_path(new_revision), new_index_digest
     File.write @revision_file, "#{new_revision}"
+    new_revision
   end
 
   def revision

@@ -7,6 +7,9 @@ shared_examples_for "storage" do
   it "returns the new revision ID from an update" do
     expect(subject.update("the-key", "the-value"))
       .to be 1
+
+    expect(subject.update("the-key", "the-value2"))
+      .to be 2
   end
 
   it "returns an empty string if you get a nonexistent key" do
