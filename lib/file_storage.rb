@@ -8,22 +8,17 @@ class FileStorage < Struct.new(:dir)
     @revisions_dir = File.join dir, "revisions"
     @content_dir   = File.join dir, "content"
 
-    FileUtils.mkdir_p @revisions_dir
     FileUtils.mkdir_p @content_dir
     File.write @revision_file, "0"
-    File.write File.join(@revisions_dir, "0"), write_content(JSON({}))
+    write_mkdir_p File.join(@revisions_dir, "0"), write_content(JSON({}))
   end
 
   def update(key, value)
     content_digest = write_content value
-    key_digest = digest key
-    old_index_digest = File.read File.join @revisions_dir, revision.to_s
-    index = JSON.parse(read_content old_index_digest)
-    index[key_digest] = content_digest
-    new_index_digest = write_content JSON index
-    File.write File.join(@revisions_dir, "#{revision + 1}"), new_index_digest
-
-    File.write @revision_file, "#{revision + 1}"
+    new_index_digest = update_index(key, content_digest)
+    new_revision = revision + 1
+    File.write revision_path(new_revision), new_index_digest
+    File.write @revision_file, "#{new_revision}"
   end
 
   def revision
@@ -31,10 +26,7 @@ class FileStorage < Struct.new(:dir)
   end
 
   def get(key, revision)
-    key_digest = digest key
-    index_digest = File.read File.join @revisions_dir, revision.to_s
-    index = JSON.parse(read_content index_digest)
-    content_digest = index[key_digest]
+    content_digest = look_up_in_index(key, revision.to_i)
     if content_digest
       read_content content_digest
     else
@@ -44,24 +36,49 @@ class FileStorage < Struct.new(:dir)
 
   private
 
+  def update_index(key, content_digest)
+    key_digest = digest key
+    index = index_for revision
+    index[key_digest] = content_digest
+    write_content JSON index
+  end
+
+  def look_up_in_index(key, revision)
+    key_digest = digest key
+    index = index_for revision
+    index[key_digest]
+  end
+
   def write_content(value)
     content_digest = digest value
-
-    dir = File.join @content_dir, content_digest[0...2], content_digest[2...4]
-    path = File.join dir, content_digest
-
-    FileUtils.mkdir_p dir
-    File.write path, value
-
+    path = content_path content_digest
+    write_mkdir_p path, value
     content_digest
   end
 
+  def index_for(revision)
+    index_digest = File.read File.join @revisions_dir, revision.to_s
+    JSON.parse read_content index_digest
+  end
+
   def read_content(digest)
-    path = File.join @content_dir, digest[0...2], digest[2...4], digest
-    File.read(path)
+    File.read File.join content_path digest
+  end
+
+  def revision_path(revision)
+    File.join(@revisions_dir, "#{revision}")
+  end
+
+  def content_path(digest)
+    File.join @content_dir, digest[0...2], digest[2...4], digest
   end
 
   def digest(s)
     Digest::SHA1.hexdigest s
+  end
+
+  def write_mkdir_p(path, content)
+    FileUtils.mkdir_p File.dirname path
+    File.write path, content
   end
 end

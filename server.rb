@@ -16,7 +16,7 @@ STORAGE = StorageFactory.build ENV
       request.request_method,
       request.path,
       params: request.params,
-      body:   request.body,
+      body:   request.body.string,
     )
 
     [resp.status, resp.headers, resp.body]

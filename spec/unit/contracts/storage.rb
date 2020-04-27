@@ -13,6 +13,12 @@ shared_examples_for "storage" do
     expect(subject.get("blah", 0)).to eq ""
   end
 
+  it "converts revisions to integers" do
+    rev_one = double :revision, to_i: 1
+    subject.update("foo", "hi")
+    expect(subject.get("foo", rev_one)).to eq "hi"
+  end
+
   it "gets the value for a key at the current revision" do
     subject.update("the-key", "one")
     expect(subject.get("the-key", subject.revision)).to eq "one"
