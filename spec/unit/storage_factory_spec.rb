@@ -7,6 +7,7 @@ describe StorageFactory do
   end
 
   it "creates file storage if you ask for it" do
+    FileUtils.rm_rf "/tmp/fridge-unit-test"
     env = {
       "FRIDGE_STORAGE_TYPE" => "file",
       "FRIDGE_STORAGE_DIR" => "/tmp/fridge-unit-test",
@@ -15,6 +16,7 @@ describe StorageFactory do
   end
 
   it "creates the file storage with the right directory" do
+    FileUtils.rm_rf "/tmp/fridge-unit-test"
     env = {
       "FRIDGE_STORAGE_TYPE" => "file",
       "FRIDGE_STORAGE_DIR" => "/tmp/fridge-unit-test",
